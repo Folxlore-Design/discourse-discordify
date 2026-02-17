@@ -80,7 +80,7 @@ get settingsUrl() {
       );
       console.log("category-admin-toolbar: match", match);
       if (match) {
-        this.router.transitionTo("topic.fromParamsNear", match.slug, match.id);
+        this.router.transitionTo("/t/" + match.id);
       } else {
         window.location = `/c/${cat.slug}/${cat.id}`;
       }
