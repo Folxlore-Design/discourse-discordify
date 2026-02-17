@@ -1,0 +1,111 @@
+// ── Hide bottom-of-post buttons ──────────────────────────────────────────────
+#topic-footer-buttons .pinned-button,
+#topic-footer-buttons .topic-notifications-button,
+.timeline-footer-controls {
+  display: none !important;
+}
+
+// ── Having a bit of a fuckabout with topic titles ─────────────────────────────
+#topic-title.is-category-landing {
+.title-wrapper h1 {
+  display: none;
+}
+
+.topic-category {
+  display: block;
+
+  .badge-category__wrapper {
+    font-size: 1.7em;
+    font-weight: bold;
+    text-decoration: none;
+    color: var(--primary);
+  }
+
+  .badge-category__name {
+    font-size: 1em;
+  }
+
+  .emoji {
+    width: 1em;
+    height: 1em;
+  }
+}
+}
+
+
+// ── Admin toolbar above post stream ──────────────────────────────────────────
+.category-admin-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4em;
+  padding: 0.4em 1em;
+
+  // Category switcher - styled as a pill matching the header buttons
+  .category-switcher {
+    appearance: none;
+    -webkit-appearance: none;
+    display: flex;
+    align-items: center;
+    padding: 0.35em 0.75em;
+    background: var(--primary-low);
+    border: 1px solid transparent;
+    border-radius: 2em;
+    color: var(--primary);
+    font-size: var(--font-down-1);
+    cursor: pointer;
+    max-width: 180px;
+
+    &:hover {
+      background: var(--primary-low-mid);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--tertiary);
+    }
+  }
+
+  // Notification tracking button - icon only, pill shaped
+  .topic-notifications-tracking {
+    .btn-default {
+      width: auto;
+      height: auto;
+      padding: 0.35em 0.5em;
+      background: var(--primary-low);
+      border: 1px solid transparent;
+      border-radius: 2em;
+      color: var(--primary-medium);
+
+      &:hover {
+        background: var(--primary-low-mid);
+        color: var(--primary);
+      }
+
+      .d-icon {
+        margin: 0;
+        width: 0.95em;
+        height: 0.95em;
+      }
+    }
+  }
+
+  // Wrench settings button
+  .category-settings-btn {
+    padding: 0.35em 0.5em;
+    background: var(--primary-low);
+    border: 1px solid transparent;
+    border-radius: 2em;
+    color: var(--primary-medium);
+
+    &:hover {
+      background: var(--primary-low-mid);
+      color: var(--primary);
+    }
+
+    .d-icon {
+      width: 0.95em;
+      height: 0.95em;
+    }
+  }
+}
