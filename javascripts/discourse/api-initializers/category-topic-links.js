@@ -58,8 +58,13 @@ export default apiInitializer((api) => {
             ) {
               return;
             }
-            console.log("category-topic-links: redirecting to topic", match.id);
-            router.replaceWith("/t/" + match.id);
+            const target =
+              match.last_read_post_number &&
+              match.last_read_post_number < match.highest_post_number
+                ? match.last_read_post_number + 1
+                : match.highest_post_number;
+            console.log("category-topic-links: redirecting to topic", match.id, "post", target);
+            router.replaceWith(`/t/${match.slug}/${match.id}/${target}`);
           }
         })
         .catch(function (err) {

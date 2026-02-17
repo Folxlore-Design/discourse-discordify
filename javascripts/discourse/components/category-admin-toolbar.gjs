@@ -80,7 +80,13 @@ get settingsUrl() {
       );
       console.log("category-admin-toolbar: match", match);
       if (match) {
-        this.router.transitionTo("/t/" + match.id);
+        const target =
+          match.last_read_post_number &&
+          match.last_read_post_number < match.highest_post_number
+            ? match.last_read_post_number + 1
+            : match.highest_post_number;
+        console.log("category-admin-toolbar: navigating to post", target);
+        this.router.transitionTo(`/t/${match.slug}/${match.id}/${target}`);
       } else {
         window.location = `/c/${cat.slug}/${cat.id}`;
       }
