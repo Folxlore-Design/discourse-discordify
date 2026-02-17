@@ -60,7 +60,7 @@ get settingsUrl() {
   @action
   async onNotificationChange(level) {
     console.log("category-admin-toolbar: changing notification level", level);
-    await this.topic.setNotificationLevel(level);
+    await this.topic.details.updateNotifications(level);
   }
 
   @action
