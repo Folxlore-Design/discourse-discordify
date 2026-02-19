@@ -30,25 +30,52 @@ export default apiInitializer((api) => {
 
     // Categories list page: rename "Topics" → "Unread" and show per-user unread+new counts
     const categoryTable = document.querySelector("table.category-list");
-    if (categoryTable) {
-      const topicsHeader = categoryTable.querySelector("th.topics");
-      if (topicsHeader) {
-        topicsHeader.textContent = "Unread";
+    const mobileCategoryFooters = document.querySelectorAll("footer.category-topics-count");
+    if (categoryTable || mobileCategoryFooters.length) {
+      const trackingState = api.container.lookup("service:topic-tracking-state");
+
+      // Desktop: rename column header and update counts
+      if (categoryTable) {
+        const topicsHeader = categoryTable.querySelector("th.topics");
+        if (topicsHeader) {
+          topicsHeader.textContent = "Unread";
+        }
+        categoryTable.querySelectorAll("tbody tr[data-category-id]").forEach((row) => {
+          const catId = parseInt(row.dataset.categoryId, 10);
+          if (!catId) return;
+          const total =
+            (trackingState?.countNew({ categoryId: catId }) || 0) +
+            (trackingState?.countUnread({ categoryId: catId }) || 0);
+          const valueSpan = row.querySelector("td.topics .value");
+          if (valueSpan) {
+            valueSpan.textContent = total;
+            const titleDiv = valueSpan.closest("div[title]");
+            if (titleDiv) {
+              titleDiv.title = `${total} unread`;
+            }
+          }
+        });
       }
 
-      const trackingState = api.container.lookup("service:topic-tracking-state");
-      categoryTable.querySelectorAll("tbody tr[data-category-id]").forEach((row) => {
-        const catId = parseInt(row.dataset.categoryId, 10);
+      // Mobile: update footer counts and replace "total" label with "unread"
+      mobileCategoryFooters.forEach((footer) => {
+        const link = footer.querySelector(".category-stat a");
+        if (!link) return;
+        const idMatch = link.getAttribute("href")?.match(/\/(\d+)$/);
+        if (!idMatch) return;
+        const catId = parseInt(idMatch[1], 10);
         if (!catId) return;
         const total =
           (trackingState?.countNew({ categoryId: catId }) || 0) +
           (trackingState?.countUnread({ categoryId: catId }) || 0);
-        const valueSpan = row.querySelector("td.topics .value");
+        const valueSpan = link.querySelector(".value");
         if (valueSpan) {
           valueSpan.textContent = total;
-          const titleDiv = valueSpan.closest("div[title]");
-          if (titleDiv) {
-            titleDiv.title = `${total} unread`;
+          for (const node of link.childNodes) {
+            if (node.nodeType === Node.TEXT_NODE && node.textContent.includes("total")) {
+              node.textContent = " unread";
+              break;
+            }
           }
         }
       });
