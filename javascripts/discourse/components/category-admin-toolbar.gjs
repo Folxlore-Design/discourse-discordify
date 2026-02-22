@@ -31,45 +31,37 @@ export default class CategoryAdminToolbar extends Component {
     return this.currentUser?.admin || this.currentUser?.moderator;
   }
 
-get settingsUrl() {
-  const cat = this.currentCategory;
-  if (!cat) return null;
+  get settingsUrl() {
+    const cat = this.currentCategory;
+    if (!cat) return null;
 
-  const parent = cat.parentCategory;
-  console.log("category-admin-toolbar: category", cat.name, "parent", parent, "parent slug", parent?.slug);
+    const parent = cat.parentCategory;
+    const slug = parent
+      ? `${parent.slug}/${cat.slug}`
+      : cat.slug;
 
-  const slug = parent
-    ? `${parent.slug}/${cat.slug}`
-    : cat.slug;
-
-  return `/c/${slug}/edit/general`;
-}
+    return `/c/${slug}/edit/general`;
+  }
 
   get notificationLevel() {
-    const level = this.topic?.details?.notification_level;
-    console.log("category-admin-toolbar: notification level", level);
-    return level;
+    return this.topic?.details?.notification_level;
   }
 
   @action
   goToSettings() {
-    console.log("category-admin-toolbar: navigating to settings", this.settingsUrl);
     window.location = this.settingsUrl;
   }
 
   @action
   async onNotificationChange(level) {
-    console.log("category-admin-toolbar: changing notification level", level);
     await this.topic.details.updateNotifications(level);
   }
 
   @action
   async switchToCategory(cat, closeMenu) {
-    console.log("category-admin-toolbar: switching to category", cat.slug, cat.id, cat.name);
     await closeMenu();
     try {
       const result = await ajax(`/c/${cat.slug}/${cat.id}.json?order=pinned`);
-      console.log("category-admin-toolbar: ajax result", result);
       const topics = result.topic_list && result.topic_list.topics;
       if (!topics) {
         window.location = `/c/${cat.slug}/${cat.id}`;
@@ -78,20 +70,17 @@ get settingsUrl() {
       const match = topics.find(
         (t) => t.title.toLowerCase().trim() === cat.name.toLowerCase().trim()
       );
-      console.log("category-admin-toolbar: match", match);
       if (match) {
         const target =
           match.last_read_post_number &&
           match.last_read_post_number < match.highest_post_number
             ? match.last_read_post_number + 1
             : match.highest_post_number;
-        console.log("category-admin-toolbar: navigating to post", target);
         this.router.transitionTo(`/t/${match.slug}/${match.id}/${target}`);
       } else {
         window.location = `/c/${cat.slug}/${cat.id}`;
       }
-    } catch (err) {
-      console.log("category-admin-toolbar: error", err);
+    } catch {
       window.location = `/c/${cat.slug}/${cat.id}`;
     }
   }

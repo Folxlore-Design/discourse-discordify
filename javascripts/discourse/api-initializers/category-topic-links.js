@@ -17,11 +17,9 @@ function relativeTime(date) {
 
 export default apiInitializer((api) => {
   const currentUser = api.getCurrentUser();
-  console.log("category-topic-links: init, currentUser", currentUser);
 
   // Render toolbar for all logged-in users
   if (currentUser) {
-    console.log("category-topic-links: registering toolbar outlet");
     api.renderInOutlet("topic-above-post-stream", CategoryAdminToolbar);
   }
   api.onPageChange(() => {
@@ -163,12 +161,7 @@ export default apiInitializer((api) => {
                 }
               }
             })
-            .catch((err) => {
-              console.log(
-                "category-topic-links: failed to fetch category topics",
-                err
-              );
-            });
+            .catch(() => {});
         }
       }
     }
@@ -181,11 +174,8 @@ export default apiInitializer((api) => {
       const topicCtrl = api.container.lookup("controller:topic");
       const categoryName = topicCtrl?.model?.category?.name?.trim().toLowerCase();
 
-      console.log("category-topic-links: onPageChange titles", fancyTitle, categoryName);
-
       if (fancyTitle && categoryName && fancyTitle === categoryName) {
         topicTitle.classList.add("is-category-landing");
-        console.log("category-topic-links: added is-category-landing class");
       } else {
         topicTitle.classList.remove("is-category-landing");
       }
@@ -248,7 +238,6 @@ export default apiInitializer((api) => {
   api.modifyClass("route:discovery.category", {
     pluginId: "category-topic-links",
     afterModel(model, transition) {
-      console.log("category-topic-links: afterModel fired", model);
       this._super(model, transition);
 
       const category = model.category;
@@ -259,13 +248,11 @@ export default apiInitializer((api) => {
 
       return ajax(path)
         .then(function (result) {
-          console.log("category-topic-links: ajax result", result);
           const topics = result.topic_list && result.topic_list.topics;
           if (!topics) return;
           const match = topics.find(function (topic) {
             return topic.title.toLowerCase().trim() === categoryName;
           });
-          console.log("category-topic-links: match result", match);
           if (match) {
             if (
               transition.from &&
@@ -280,13 +267,10 @@ export default apiInitializer((api) => {
               match.last_read_post_number < match.highest_post_number
                 ? match.last_read_post_number + 1
                 : match.highest_post_number;
-            console.log("category-topic-links: redirecting to topic", match.id, "post", target);
             router.replaceWith(`/t/${match.slug}/${match.id}/${target}`);
           }
         })
-        .catch(function (err) {
-          console.log("category-topic-links: ajax error", err);
-        });
+        .catch(function () {});
     },
   });
 });
