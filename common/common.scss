@@ -1,8 +1,58 @@
 // ── Hide bottom-of-post buttons ──────────────────────────────────────────────
 #topic-footer-buttons .pinned-button,
-#topic-footer-buttons .topic-notifications-button,
-.timeline-footer-controls {
+#topic-footer-buttons .topic-notifications-button {
   display: none !important;
+}
+
+// ── Hide default more-topics / suggested topics section ───────────────────────
+.more-topics__container {
+  display: none !important;
+}
+
+// ── Category topic list (two-column grid) ─────────────────────────────────────
+#discordify-category-topics {
+  padding: 1.5em 1em;
+  border-top: 1px solid var(--primary-low);
+
+  .discordify-topic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.2em 1.5em;
+
+    @media (max-width: 767px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .discordify-topic-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5em;
+    padding: 0.3em 0.4em;
+    border-radius: 0.25em;
+    text-decoration: none;
+    color: var(--primary);
+    min-width: 0;
+
+    &:hover {
+      background: var(--primary-low);
+    }
+
+    .discordify-topic-title {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: var(--font-down-1);
+    }
+
+    .discordify-topic-date {
+      flex-shrink: 0;
+      font-size: var(--font-down-2);
+      color: var(--primary-medium);
+    }
+  }
 }
 
 // ── Having a bit of a fuckabout with topic titles ─────────────────────────────

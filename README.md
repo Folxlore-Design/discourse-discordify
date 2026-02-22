@@ -16,6 +16,10 @@ A compact toolbar is rendered above the post stream on topic pages. It contains:
 - **Notification level picker** — sets watching/tracking/normal/muted for the current topic (icon only, no label)
 - **Settings wrench** — links to the category edit page; visible to admins and moderators only
 
+### Channel Topic List
+
+At the bottom of every topic page, a two-column grid replaces Discourse's default "New & Unread Topics" section. It shows all other topics from the same category, sorted by creation date (newest first). Each entry shows the topic title (truncated with ellipsis if long) and its creation date. The list is fetched live from the category API and cached per topic so navigating between posts in the same topic doesn't re-fetch. On mobile the grid collapses to a single column.
+
 ### Categories List Tweaks
 
 On the categories list page, the "Topics" column header is relabeled "Unread" and the count is replaced with each category's actual unread + new post count for the current user.

@@ -12,6 +12,99 @@ export default apiInitializer((api) => {
     api.renderInOutlet("topic-above-post-stream", CategoryAdminToolbar);
   }
   api.onPageChange(() => {
+    // === Category topic list at bottom of topic pages ===
+    const discordifyList = document.getElementById("discordify-category-topics");
+    const topicUrlMatch = window.location.pathname.match(/\/t\/[^/]+\/(\d+)/);
+    const currentTopicId = topicUrlMatch ? topicUrlMatch[1] : null;
+
+    if (!currentTopicId) {
+      discordifyList?.remove();
+    } else {
+      const catLink = document.querySelector(
+        ".topic-category .badge-category__wrapper"
+      );
+      const catHref = catLink?.getAttribute("href");
+      const catMatch = catHref?.match(/\/c\/(.+?)\/(\d+)$/);
+
+      if (!catMatch) {
+        discordifyList?.remove();
+      } else {
+        const catSlug = catMatch[1];
+        const catId = catMatch[2];
+        const cacheKey = `${currentTopicId}:${catId}`;
+
+        if (discordifyList?.dataset.cacheKey !== cacheKey) {
+          discordifyList?.remove();
+          const snapshotUrl = window.location.pathname;
+
+          ajax(`/c/${catSlug}/${catId}.json?order=created`)
+            .then((result) => {
+              if (window.location.pathname !== snapshotUrl) return;
+
+              const topics = (result.topic_list?.topics || [])
+                .filter((t) => String(t.id) !== currentTopicId)
+                .sort(
+                  (a, b) => new Date(b.created_at) - new Date(a.created_at)
+                );
+
+              if (!topics.length) return;
+
+              const el = document.createElement("div");
+              el.id = "discordify-category-topics";
+              el.dataset.cacheKey = cacheKey;
+
+              const grid = document.createElement("div");
+              grid.className = "discordify-topic-grid";
+
+              topics.forEach((t) => {
+                const a = document.createElement("a");
+                a.href = `/t/${t.slug}/${t.id}`;
+                a.className = "discordify-topic-item";
+
+                const title = document.createElement("span");
+                title.className = "discordify-topic-title";
+                title.textContent = t.title;
+
+                const date = document.createElement("span");
+                date.className = "discordify-topic-date";
+                const d = new Date(t.created_at);
+                date.textContent = d.toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                });
+
+                a.appendChild(title);
+                a.appendChild(date);
+                grid.appendChild(a);
+              });
+
+              el.appendChild(grid);
+
+              const moreTopics = document.querySelector(
+                ".more-topics__container"
+              );
+              if (moreTopics?.parentNode) {
+                moreTopics.parentNode.insertBefore(el, moreTopics);
+              } else {
+                const postStream = document.querySelector("#post-stream");
+                if (postStream?.parentNode) {
+                  postStream.parentNode.insertBefore(
+                    el,
+                    postStream.nextSibling
+                  );
+                }
+              }
+            })
+            .catch((err) => {
+              console.log(
+                "category-topic-links: failed to fetch category topics",
+                err
+              );
+            });
+        }
+      }
+    }
+
     // Topic page: add is-category-landing class when topic title matches category name
     const topicTitle = document.querySelector("#topic-title");
     if (topicTitle) {
