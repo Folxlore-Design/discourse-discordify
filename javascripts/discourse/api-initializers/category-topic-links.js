@@ -33,29 +33,16 @@ export default apiInitializer((api) => {
     if (!currentTopicId) {
       discordifyList?.remove();
     } else {
-      // Use data-category-id + site.categories for accurate category lookup
-      // (href parsing can resolve to a parent category slug)
-      const catBadgeEl = document.querySelector(
-        ".topic-category [data-category-id]"
-      );
-      const catId = catBadgeEl
-        ? parseInt(catBadgeEl.dataset.categoryId, 10)
-        : null;
-      const site = api.container.lookup("service:site");
-      const category = catId
-        ? (site.categories || []).find((c) => c.id === catId)
-        : null;
+      // Use the Ember topic model for accurate category detection.
+      // DOM badge parsing can resolve to the parent category for subcategory topics.
+      const topicController = api.container.lookup("controller:topic");
+      const category = topicController?.model?.category || null;
+      const catId = category?.id || null;
 
       if (!category) {
         discordifyList?.remove();
       } else {
-        const parent =
-          category.parentCategory ||
-          (category.parent_category_id
-            ? (site.categories || []).find(
-                (c) => c.id === category.parent_category_id
-              )
-            : null);
+        const parent = category.parentCategory || null;
         const catSlug = parent
           ? `${parent.slug}/${category.slug}`
           : category.slug;
@@ -190,7 +177,9 @@ export default apiInitializer((api) => {
     const topicTitle = document.querySelector("#topic-title");
     if (topicTitle) {
       const fancyTitle = document.querySelector(".fancy-title")?.textContent?.trim().toLowerCase();
-      const categoryName = document.querySelector(".badge-category__name")?.textContent?.trim().toLowerCase();
+      // Use Ember model for category name — DOM badge can show parent category
+      const topicCtrl = api.container.lookup("controller:topic");
+      const categoryName = topicCtrl?.model?.category?.name?.trim().toLowerCase();
 
       console.log("category-topic-links: onPageChange titles", fancyTitle, categoryName);
 
