@@ -25,7 +25,9 @@
   }
 
   .discordify-topic-item {
-    display: block;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
     padding: var(--d-topic-list-data-padding-y) var(--d-topic-list-data-padding-inline-start);
     border-radius: var(--d-border-radius);
     box-shadow: 0 0 0 1px var(--topic-card-shadow);
@@ -34,6 +36,22 @@
 
     &:hover {
       background: var(--d-hover);
+    }
+
+    .--topic-creator {
+      flex-shrink: 0;
+
+      .avatar {
+        display: block;
+        width: var(--d-topic-list-avatar-size);
+        height: var(--d-topic-list-avatar-size);
+        border-radius: 50%;
+      }
+    }
+
+    .discordify-topic-main {
+      flex: 1;
+      min-width: 0;
     }
 
     .link-top-line {

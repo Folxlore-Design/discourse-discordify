@@ -62,6 +62,12 @@ export default apiInitializer((api) => {
 
               if (!topics.length) return;
 
+              // Build user lookup map for avatar URLs
+              const userMap = {};
+              (result.users || []).forEach((u) => {
+                userMap[u.id] = u;
+              });
+
               const el = document.createElement("div");
               el.id = "discordify-category-topics";
               el.dataset.cacheKey = cacheKey;
@@ -74,6 +80,27 @@ export default apiInitializer((api) => {
                 a.href = `/t/${t.slug}/${t.id}`;
                 a.className = "discordify-topic-item";
 
+                // Avatar: find last poster, fall back to first poster
+                const lastPoster =
+                  t.posters?.find((p) => p.extras?.includes("latest")) ||
+                  t.posters?.[0];
+                const user = lastPoster ? userMap[lastPoster.user_id] : null;
+                if (user?.avatar_template) {
+                  const creator = document.createElement("div");
+                  creator.className = "--topic-creator";
+                  const img = document.createElement("img");
+                  img.src = user.avatar_template.replace("{size}", "48");
+                  img.className = "avatar";
+                  img.alt = "";
+                  img.title = user.name || user.username;
+                  creator.appendChild(img);
+                  a.appendChild(creator);
+                }
+
+                // Main content: title + metadata
+                const main = document.createElement("div");
+                main.className = "discordify-topic-main";
+
                 // Top line: title
                 const topLine = document.createElement("span");
                 topLine.className = "link-top-line";
@@ -81,7 +108,7 @@ export default apiInitializer((api) => {
                 titleEl.className = "title";
                 titleEl.textContent = t.title;
                 topLine.appendChild(titleEl);
-                a.appendChild(topLine);
+                main.appendChild(topLine);
 
                 // Bottom line: reply count + activity time
                 const bottomLine = document.createElement("div");
@@ -110,7 +137,8 @@ export default apiInitializer((api) => {
                 timeWrap.appendChild(relDate);
                 bottomLine.appendChild(timeWrap);
 
-                a.appendChild(bottomLine);
+                main.appendChild(bottomLine);
+                a.appendChild(main);
                 grid.appendChild(a);
               });
 
