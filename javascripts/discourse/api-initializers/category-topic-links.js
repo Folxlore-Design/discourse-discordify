@@ -2,6 +2,19 @@ import { apiInitializer } from "discourse/lib/api";
 import { ajax } from "discourse/lib/ajax";
 import CategoryAdminToolbar from "../components/category-admin-toolbar";
 
+function relativeTime(date) {
+  const diff = Date.now() - date.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${Math.max(0, mins)}m`;
+  const hours = Math.floor(diff / 3600000);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(diff / 86400000);
+  if (days < 365) {
+    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+  return date.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+}
+
 export default apiInitializer((api) => {
   const currentUser = api.getCurrentUser();
   console.log("category-topic-links: init, currentUser", currentUser);
@@ -61,20 +74,43 @@ export default apiInitializer((api) => {
                 a.href = `/t/${t.slug}/${t.id}`;
                 a.className = "discordify-topic-item";
 
-                const title = document.createElement("span");
-                title.className = "discordify-topic-title";
-                title.textContent = t.title;
+                // Top line: title
+                const topLine = document.createElement("span");
+                topLine.className = "link-top-line";
+                const titleEl = document.createElement("span");
+                titleEl.className = "title";
+                titleEl.textContent = t.title;
+                topLine.appendChild(titleEl);
+                a.appendChild(topLine);
 
-                const date = document.createElement("span");
-                date.className = "discordify-topic-date";
-                const d = new Date(t.created_at);
-                date.textContent = d.toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                });
+                // Bottom line: reply count + activity time
+                const bottomLine = document.createElement("div");
+                bottomLine.className = "link-bottom-line";
 
-                a.appendChild(title);
-                a.appendChild(date);
+                const replyCount =
+                  t.reply_count ?? Math.max((t.posts_count || 1) - 1, 0);
+                if (replyCount > 0) {
+                  const replies = document.createElement("span");
+                  replies.className = "topic-replies";
+                  replies.innerHTML = `<svg class="fa d-icon d-icon-reply svg-icon svg-string" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><use href="#reply"></use></svg><span class="number">${replyCount}</span>`;
+                  bottomLine.appendChild(replies);
+                }
+
+                const actDate = new Date(
+                  t.bumped_at || t.last_posted_at || t.created_at
+                );
+                const timeWrap = document.createElement("div");
+                timeWrap.className = "topic-activity__time";
+                const relDate = document.createElement("span");
+                relDate.className = "relative-date";
+                relDate.setAttribute("data-time", String(actDate.getTime()));
+                relDate.setAttribute("data-format", "tiny");
+                relDate.title = actDate.toLocaleString();
+                relDate.textContent = relativeTime(actDate);
+                timeWrap.appendChild(relDate);
+                bottomLine.appendChild(timeWrap);
+
+                a.appendChild(bottomLine);
                 grid.appendChild(a);
               });
 
