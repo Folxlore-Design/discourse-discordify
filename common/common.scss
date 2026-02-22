@@ -17,7 +17,7 @@
   .discordify-topic-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.2em 1.5em;
+    gap: var(--space-4);
 
     @media (max-width: 767px) {
       grid-template-columns: 1fr;
@@ -26,13 +26,14 @@
 
   .discordify-topic-item {
     display: block;
-    padding: 0.5em 0.4em;
-    border-radius: 0.25em;
+    padding: var(--d-topic-list-data-padding-y) var(--d-topic-list-data-padding-inline-start);
+    border-radius: var(--d-border-radius);
+    box-shadow: 0 0 0 1px var(--topic-card-shadow);
     text-decoration: none;
     min-width: 0;
 
     &:hover {
-      background: var(--primary-low);
+      background: var(--d-hover);
     }
 
     .link-top-line {
@@ -44,8 +45,9 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        color: var(--primary);
-        font-size: var(--font-up-1);
+        color: var(--title-color);
+        font-size: var(--d-topic-list-title-font-size);
+        font-weight: var(--topic-title-font-weight);
       }
     }
 
@@ -53,7 +55,7 @@
       display: flex;
       align-items: center;
       gap: 0.5em;
-      margin-top: 0.3em;
+      margin-top: var(--d-topic-list-metadata-top-space);
       font-size: var(--font-down-1);
       color: var(--primary-medium);
     }
