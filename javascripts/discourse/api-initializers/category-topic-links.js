@@ -33,24 +33,41 @@ export default apiInitializer((api) => {
     if (!currentTopicId) {
       discordifyList?.remove();
     } else {
-      const catLink = document.querySelector(
-        ".topic-category .badge-category__wrapper"
+      // Use data-category-id + site.categories for accurate category lookup
+      // (href parsing can resolve to a parent category slug)
+      const catBadgeEl = document.querySelector(
+        ".topic-category [data-category-id]"
       );
-      const catHref = catLink?.getAttribute("href");
-      const catMatch = catHref?.match(/\/c\/(.+?)\/(\d+)$/);
+      const catId = catBadgeEl
+        ? parseInt(catBadgeEl.dataset.categoryId, 10)
+        : null;
+      const site = api.container.lookup("service:site");
+      const category = catId
+        ? (site.categories || []).find((c) => c.id === catId)
+        : null;
 
-      if (!catMatch) {
+      if (!category) {
         discordifyList?.remove();
       } else {
-        const catSlug = catMatch[1];
-        const catId = catMatch[2];
+        const parent =
+          category.parentCategory ||
+          (category.parent_category_id
+            ? (site.categories || []).find(
+                (c) => c.id === category.parent_category_id
+              )
+            : null);
+        const catSlug = parent
+          ? `${parent.slug}/${category.slug}`
+          : category.slug;
         const cacheKey = `${currentTopicId}:${catId}`;
 
         if (discordifyList?.dataset.cacheKey !== cacheKey) {
           discordifyList?.remove();
           const snapshotUrl = window.location.pathname;
 
-          ajax(`/c/${catSlug}/${catId}.json?order=created`)
+          ajax(
+            `/c/${catSlug}/${catId}.json?order=created&no_subcategories=true`
+          )
             .then((result) => {
               if (window.location.pathname !== snapshotUrl) return;
 
